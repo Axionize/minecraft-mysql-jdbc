@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_slug}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_author_list}"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/${mod_slug}",
+    "sources": "https://github.com/Axionize/minecraft-mysql-jdbc",
+    "issues": "https://github.com/Axionize/minecraft-mysql-jdbc/issues"
+  },
+  "license": "${mod_license}",
+  "icon": "${mod_slug}.png"
+}

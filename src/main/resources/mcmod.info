@@ -1,0 +1,12 @@
+[
+{
+  "modid": "${mod_id}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "version": "${version}",
+  "mcversion": "",
+  "url": "https://modrinth.com/mod/${mod_slug}",
+  "authorList": [ "${mod_author_list}" ],
+  "logoFile": "${mod_slug}.png"
+}
+]

@@ -1,0 +1,78 @@
+plugins {
+    id "java"
+    id "com.gradleup.shadow" version "9.3.0"
+}
+
+group = 'dev.axionize'
+version = "${project.library_version}+${project.release_date}"
+base {
+    archivesName = "${project.library_name}"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "${project.library_maven_name}:${project.library_version}"
+    implementation(project(":forge-1.12")) { transitive = false }
+    implementation(project(":forge-1.13")) { transitive = false }
+    implementation(project(":forge-1.17")) { transitive = false }
+    implementation(project(":spigot")) { transitive = false }
+    implementation(project(":neoforge-1.21")) { transitive = false }
+}
+
+processResources {
+
+    /* --- 1. Collect authors ------------------------------------------------ */
+
+    // Comma‑separated list from gradle.properties → ["author1", "author2"]
+    def modAuthors = project.findProperty('mod_author') ?
+            project.mod_author.split(',').collect { it.trim() } : []
+
+    // Optional vendor from gradle.properties → "vendor"
+    def vendor = project.findProperty('mod_vendor')?.trim()
+
+    def fullAuthorList = modAuthors + (vendor ? [vendor] : [])
+
+    /* --- 2. Build the replacement strings --------------------------------- */
+
+    // author1", "author2", "vendor    <-- NO outer quotes
+    def modAuthorListString = fullAuthorList.join('", "')
+
+    def expandedProps = project.properties + [
+            // plain, human‑readable version: author1, author2, vendor
+            mod_author_plain : fullAuthorList.join(', '),
+            // JSON‑ready fragment (without outer quotes)
+            mod_author_list  : modAuthorListString
+    ]
+
+    /* --- 3. Apply the replacements ---------------------------------------- */
+
+    filesMatching([
+            'mcmod.info',
+            'plugin.yml',
+            'fabric.mod.json',
+            'META-INF/mods.toml',
+            'META-INF/neoforge.mods.toml',
+            'pack.mcmeta'
+    ]) {
+        expand expandedProps
+    }
+}
+
+shadowJar {
+    dependencies {
+        exclude("META-INF/versions/**") // can't have any classes higher than Java 8
+        include(dependency("${project.library_maven_name}:.*"))
+        include(project(":forge-1.12"))
+        include(project(":forge-1.13"))
+        include(project(":forge-1.17"))
+        include(project(":spigot"))
+        include(project(":neoforge-1.21"))
+    }
+    // Preserve META-INF/services/java.sql.Driver so DriverManager auto-registration works.
+    mergeServiceFiles()
+}
+
+jar.finalizedBy('shadowJar')

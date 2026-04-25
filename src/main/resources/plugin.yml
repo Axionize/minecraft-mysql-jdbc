@@ -1,0 +1,6 @@
+name: ${mod_slug}
+main: dev.axionize.${mod_id}.SpigotPlugin
+description: ${mod_description}
+author: ${mod_author_plain}
+website: https://modrinth.com/mod/${mod_slug}
+version: ${version}

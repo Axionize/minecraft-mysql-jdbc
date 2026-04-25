@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+base {
+    archivesName = "${rootProject.name}-${project.name}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        name = 'Mojang'
+        url = 'https://libraries.minecraft.net'
+    }
+
+    maven {
+        name = 'NeoForged'
+        url = 'https://maven.neoforged.net/releases'
+    }
+}
+
+dependencies {
+    compileOnly 'net.neoforged.fancymodloader:loader:7.0.11'
+}
