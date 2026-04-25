@@ -80,7 +80,7 @@ jobs:
       - name: Publish to Modrinth
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-id: 2UdFEObs
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-featured: true
           modrinth-unfeature-mode: subset
