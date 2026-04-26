@@ -2,7 +2,7 @@
 
 Oracle's official [MySQL Connector/J](https://github.com/mysql/mysql-connector-j) repackaged as a Bukkit/Spigot/Paper plugin and a Fabric/Forge/NeoForge mod.
 
-> **Heads up:** CraftBukkit/Spigot/Paper have shipped MySQL Connector/J on the server's parent classloader since 1.4 (the "ebeans" era), so on those servers you **don't need this mod and installing it has no effect** — plugin classloaders delegate parent-first, so the bundled driver always wins `Class.forName("com.mysql.cj.jdbc.Driver")` regardless of what's in `plugins/`. (Empirically verified — same as the [SQLite holder](https://modrinth.com/mod/minecraft-sqlite-jdbc).) This mod is primarily useful on **Fabric**, **NeoForge**, and Bukkit forks that strip the bundled driver.
+> **Heads up:** CraftBukkit/Spigot/Paper have shipped MySQL Connector/J on the server's parent classloader since 1.4 (the "ebeans" era). For the **default JDBC path** (`Class.forName("com.mysql.cj.jdbc.Driver")` / `DriverManager.getConnection`) the bundled driver wins — installing this mod doesn't change that. This mod is primarily useful on **Fabric**, **NeoForge**, and Bukkit forks that strip the bundled driver. If you specifically want this mod's connector instead of the bundled one (e.g. for a newer connector version), use the public API — see [Using this mod's connector via the public API](#using-this-mods-connector-via-the-public-api) below.
 
 ## What's in the jar
 
@@ -39,6 +39,42 @@ MariaDB speaks the MySQL protocol on the wire, so this driver works against Mari
 ## Versioning
 
 The jar version tracks connector-j one-to-one. `9.1.0+2026-04-25` ships connector-j 9.1.0; the suffix is the build date. A scheduled GitHub Action checks Maven Central daily and bumps automatically.
+
+## Using this mod's connector via the public API
+
+If you specifically want this mod's connector instead of the bundled one — to upgrade past a stale fork's bundled driver, or to test a newer connector version — your plugin softdepends on this holder and calls `MinecraftMysqlJdbc.connect(url, props)`:
+
+```yaml
+# in your plugin.yml
+softdepend: [mysql-jdbc]
+```
+
+```java
+Properties props = new Properties();
+props.setProperty("user", "grim");
+props.setProperty("password", "...");
+Connection c;
+try {
+    c = MinecraftMysqlJdbc.connect("jdbc:mysql://host:3306/db?useSSL=false", props);
+} catch (NoClassDefFoundError | ClassNotFoundException notInstalled) {
+    c = DriverManager.getConnection("jdbc:mysql://host:3306/db?useSSL=false", props);
+}
+```
+
+`MinecraftMysqlJdbc` wraps a child-first `URLClassLoader` pointing at this jar, parented to the platform classloader so `com.mysql.cj.*` must come from this jar (not the bundled chain). The returned `Connection` is a standard `java.sql.Connection` — keep your casts to `java.sql.*` interfaces; the impl class lives in the child-first classloader and won't down-cast across the boundary.
+
+API surface (all static):
+
+| Method | Returns |
+|---|---|
+| `connect(String url)` | open `Connection` through this driver |
+| `connect(String url, Properties props)` | as above with props |
+| `driver()` | the `java.sql.Driver` instance |
+| `driverVersion()` | connector-j version (e.g. `"9.1"`) |
+| `eagerInit()` | warm the classloader at plugin enable |
+| `shutdown()` | release file handles on plugin disable |
+
+Grim Anti-Cheat's MySQL backend uses this API automatically when this holder is installed.
 
 ## License
 
