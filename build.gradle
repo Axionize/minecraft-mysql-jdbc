@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     implementation "${project.library_maven_name}:${project.library_version}"
+    implementation(project(":api"))
     implementation(project(":forge-1.12")) { transitive = false }
     implementation(project(":forge-1.13")) { transitive = false }
     implementation(project(":forge-1.17")) { transitive = false }
@@ -65,6 +66,7 @@ shadowJar {
     dependencies {
         exclude("META-INF/versions/**") // can't have any classes higher than Java 8
         include(dependency("${project.library_maven_name}:.*"))
+        include(project(":api"))
         include(project(":forge-1.12"))
         include(project(":forge-1.13"))
         include(project(":forge-1.17"))
