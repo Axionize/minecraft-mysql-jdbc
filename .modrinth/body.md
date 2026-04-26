@@ -1,8 +1,8 @@
-# MySQL Connector/J
+# MySQL Connector/J for Minecraft
 
 Oracle's official [MySQL Connector/J](https://github.com/mysql/mysql-connector-j) repackaged as a Bukkit/Spigot/Paper plugin and a Fabric/Forge/NeoForge mod.
 
-> **Heads up:** CraftBukkit/Spigot/Paper have shipped MySQL Connector/J as a runtime dependency since 1.4 (the "ebeans" era), so on those servers you don't need this mod. It's primarily useful on **Fabric**, **NeoForge**, and **legacy Bukkit forks that strip the bundled driver**.
+> **Heads up:** CraftBukkit/Spigot/Paper have shipped MySQL Connector/J on the server's parent classloader since 1.4 (the "ebeans" era), so on those servers you **don't need this mod and installing it has no effect** — plugin classloaders delegate parent-first, so the bundled driver always wins `Class.forName("com.mysql.cj.jdbc.Driver")` regardless of what's in `plugins/`. (Empirically verified — same as the [SQLite holder](https://modrinth.com/mod/minecraft-sqlite-jdbc).) This mod is primarily useful on **Fabric**, **NeoForge**, and Bukkit forks that strip the bundled driver.
 
 ## What's in the jar
 
